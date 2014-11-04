@@ -28,20 +28,20 @@ function moduloigp_permission() {
 * @return array The form structure.
 */
 function moduloigp_admin() {
-$form = array();
+  $form = array();
 
-// Algo que configurar
-$form['moduloigp_something'] = array(
-'#type' => 'textfield',
-'#title' => t('Something'),
-'#default_value' => variable_get(‘moduloigp_something’, ""),
-'#size' => 60,
-'#maxlength' => 250,
-'#description' => t("Something"),
-'#required' => TRUE,
-);
+  // Algo que configurar
+  $form['moduloigp_something'] = array(
+  '#type' => 'textfield',
+  '#title' => t('Something'),
+  '#default_value' => variable_get(‘moduloigp_something’, ""),
+  '#size' => 60,
+  '#maxlength' => 250,
+  '#description' => t("Something"),
+  '#required' => TRUE,
+  );
 
-return system_settings_form($form);
+  return system_settings_form($form);
 }
 
 /**
@@ -99,7 +99,20 @@ function moduloigp_block ( $op = 'list', $delta = 0, $edit = array() )
       return $block;
   }
 }
-
+//bloque con un saludo
+function moduloigp_block_info(){
+  $blocks['hola_mundo'] = array(
+      'info'=>'Bloque para saludo Hola mundo'
+  );
+  return $blocks;
+}
+function moduloigp_block_view($delta=''){
+  switch ($delta) {
+    case 'hola_mundo':
+      $block['content']=saludo_bienvenida();
+      return $block;
+  }
+}
 /*Creacion de formularios*/
 
 function moduloigp_message ()
@@ -109,4 +122,42 @@ function moduloigp_message ()
   $content .= drupal_get_form ( 'moduloigp_message_form' );
 
   return $content;
+}
+
+/*menu hola mundo*/
+function moduloigp_menu(){
+   $items['saludo/hola-mundo'] = array(
+	      'title'=>'Saludo',
+        'page callback'=>'saludo_bienvenida', //llama a la funcion saludo_bienvenida()
+         // solo pagina sin item en el menu de navegacion
+	      'type' => MENU_CALLBACK, //por defecto: MENU_NORMAL_ITEM
+        'access callback'=>TRUE,
+   );
+   //configurar el saludo de nuestro modulo desde el administrador.
+   $items['admin/config/content/saludo'] = array(
+    'title' => 'Saludar',
+    'description' => 'Configurar las opciones para el saludo.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('moduloigp_configuracion'),//llama a la funcion de configuracion en el archivo saludo.admin.inc
+    'access arguments' => array('administer site configuration'),
+    'file' => 'saludo.admin.inc',
+  );
+   return $items;
+}
+
+function saludo_bienvenida(){
+   // $saludo = 'Hola bienvenid@ a mi sitio';
+   // return $saludo;
+   $variables = array(
+       'message' => variable_get('saludo_texto', 'Hola Mundo'),
+     );
+     return theme('saludar_hola_mundo', $variables);
+}
+
+function moduloigp_theme() {
+  return array(
+    'saludar_hola_mundo' => array(
+      'template' => 'saludar-hola-mundo', //tpl.php
+    ),
+  );
 }
